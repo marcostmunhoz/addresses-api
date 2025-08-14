@@ -12,5 +12,10 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  coveragePathIgnorePatterns: ['main.ts', 'app.module.ts'],
+  coveragePathIgnorePatterns: [
+    'testing/domain/index.ts',
+    'main.ts',
+    'tokens.ts',
+    'app.module.ts',
+  ],
 };
