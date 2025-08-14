@@ -1,10 +1,23 @@
 import { Address, AddressComponents } from '@/domain/entity/address';
+import { AddressFactory } from '@/domain/factory/address.factory';
 import { AddressRepository } from '@/domain/repository/address.repository';
 import { GeocodingService } from '@/domain/service/geocoding.service';
+import { EntityIdGeneratorService } from '@/domain/services/entity-id-generator.service';
 import { Coordinates } from '@/domain/value-object/coordinates.value-object';
 import { EntityId } from '@/domain/value-object/entity-id.value-object';
 import { State } from '@/domain/value-object/state.value-object';
 import { ZipCode } from '@/domain/value-object/zip-code.value-object';
+
+export const createEntityIdGeneratorServiceMock =
+  (): jest.Mocked<EntityIdGeneratorService> =>
+    ({
+      generate: jest.fn(),
+    }) as unknown as jest.Mocked<EntityIdGeneratorService>;
+
+export const createAddressFactoryMock = (): jest.Mocked<AddressFactory> =>
+  ({
+    create: jest.fn(),
+  }) as unknown as jest.Mocked<AddressFactory>;
 
 export const createAddressRepositoryMock = (): jest.Mocked<AddressRepository> =>
   ({
