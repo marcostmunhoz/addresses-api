@@ -1,6 +1,6 @@
 import { AddressFactory } from './address.factory';
 import { Address, AddressComponents } from '@/domain/entity/address';
-import type { EntityIdGeneratorService } from '@/domain/services/entity-id-generator.service';
+import type { EntityIdGeneratorService } from '@/domain/service/entity-id-generator.service';
 import {
   createFakeAddressComponents,
   createFakeEntityId,

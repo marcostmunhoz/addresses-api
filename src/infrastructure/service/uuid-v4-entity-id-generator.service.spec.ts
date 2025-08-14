@@ -1,4 +1,4 @@
-import { UuidV4EntityIdGeneratorService } from '@/infrastructure/services/uuid-v4-entity-id-generator.service';
+import { UuidV4EntityIdGeneratorService } from '@/infrastructure/service/uuid-v4-entity-id-generator.service';
 import { EntityId } from '@/domain/value-object/entity-id.value-object';
 const { v4 } = require('uuid');
 

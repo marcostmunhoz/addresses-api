@@ -1,6 +1,6 @@
 import { EntityIdGeneratorServiceToken } from '@/tokens';
 import { Inject } from '@nestjs/common';
-import type { EntityIdGeneratorService } from '@/domain/services/entity-id-generator.service';
+import type { EntityIdGeneratorService } from '@/domain/service/entity-id-generator.service';
 import { Address, AddressComponents } from '@/domain/entity/address';
 
 export class AddressFactory {

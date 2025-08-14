@@ -3,7 +3,7 @@ import {
   AddressRepositoryToken,
   EntityIdGeneratorServiceToken,
 } from './tokens';
-import { UuidV4EntityIdGeneratorService } from './infrastructure/services/uuid-v4-entity-id-generator.service';
+import { UuidV4EntityIdGeneratorService } from './infrastructure/service/uuid-v4-entity-id-generator.service';
 import { TypeOrmAddressRepository } from './infrastructure/repository/typeorm-address.repository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
