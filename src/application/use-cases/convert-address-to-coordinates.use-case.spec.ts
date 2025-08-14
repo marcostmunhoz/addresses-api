@@ -2,9 +2,8 @@ import { ConvertAddressToCoordinatesUseCase } from './convert-address-to-coordin
 import { AddressRepository } from '@/domain/repository/address.repository';
 import { GeocodingService } from '@/domain/service/geocoding.service';
 import { Address, AddressComponents } from '@/domain/entity/address';
-import { State } from '@/domain/value-object/state.value-object';
-import { ZipCode } from '@/domain/value-object/zip-code.value-object';
 import {
+  createAddressFactoryMock,
   createAddressRepositoryMock,
   createFakeAddress,
   createFakeAddressComponents,
@@ -12,9 +11,11 @@ import {
   createFakeEntityId,
   createGeocodingServiceMock,
 } from '@/testing/domain';
+import { AddressFactory } from '@/domain/factory/address.factory';
 
 describe('ConvertAddressToCoordinatesUseCase', () => {
   let sut: ConvertAddressToCoordinatesUseCase;
+  let addressFactoryMock: jest.Mocked<AddressFactory>;
   let addressRepositoryMock: jest.Mocked<AddressRepository>;
   let geocodingServiceMock: jest.Mocked<GeocodingService>;
   const fakeCoordinates = createFakeCoordinates();
@@ -22,9 +23,11 @@ describe('ConvertAddressToCoordinatesUseCase', () => {
     createFakeAddressComponents();
 
   beforeEach(() => {
+    addressFactoryMock = createAddressFactoryMock();
     addressRepositoryMock = createAddressRepositoryMock();
     geocodingServiceMock = createGeocodingServiceMock();
     sut = new ConvertAddressToCoordinatesUseCase(
+      addressFactoryMock,
       addressRepositoryMock,
       geocodingServiceMock,
     );
@@ -64,6 +67,28 @@ describe('ConvertAddressToCoordinatesUseCase', () => {
     );
   });
 
+  it('creates a new Address instance and saves it when it does not exist', async () => {
+    // Arrange
+    addressRepositoryMock.findByComponents.mockResolvedValue(null);
+    geocodingServiceMock.getCoordinates.mockResolvedValue(fakeCoordinates);
+    addressFactoryMock.create.mockReturnValue(createFakeAddress());
+
+    // Act
+    const result = await sut.execute(fakeAddressComponents);
+
+    // Assert
+    expect(result).toEqual(fakeCoordinates);
+    expect(addressRepositoryMock.findByComponents).toHaveBeenCalledWith(
+      fakeAddressComponents,
+    );
+    expect(geocodingServiceMock.getCoordinates).toHaveBeenCalledWith(
+      fakeAddressComponents,
+    );
+    expect(addressFactoryMock.create).toHaveBeenCalledWith(
+      fakeAddressComponents,
+    );
+  });
+
   it('saves and returns new coordinates if address exists without coordinates', async () => {
     // Arrange
     const address: Address = new Address({
@@ -91,33 +116,5 @@ describe('ConvertAddressToCoordinatesUseCase', () => {
       fakeAddressComponents,
     );
     expect(addressRepositoryMock.save).toHaveBeenCalledWith(updatedAddress);
-  });
-
-  it('creates and returns new address with coordinates if address does not exist', async () => {
-    // Arrange
-    addressRepositoryMock.findByComponents.mockResolvedValue(null);
-    geocodingServiceMock.getCoordinates.mockResolvedValue(fakeCoordinates);
-    const createdAddress: Address = new Address({
-      id: createFakeEntityId(),
-      ...fakeAddressComponents,
-      coordinates: fakeCoordinates,
-    });
-    addressRepositoryMock.create.mockResolvedValue(createdAddress);
-
-    // Act
-    const result = await sut.execute(fakeAddressComponents);
-
-    // Assert
-    expect(result).toEqual(fakeCoordinates);
-    expect(addressRepositoryMock.findByComponents).toHaveBeenCalledWith(
-      fakeAddressComponents,
-    );
-    expect(geocodingServiceMock.getCoordinates).toHaveBeenCalledWith(
-      fakeAddressComponents,
-    );
-    expect(addressRepositoryMock.create).toHaveBeenCalledWith({
-      ...fakeAddressComponents,
-      coordinates: fakeCoordinates,
-    });
   });
 });

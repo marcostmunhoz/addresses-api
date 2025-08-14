@@ -1,16 +1,24 @@
-import { Address, AddressComponents } from '@/domain/entity/address';
+import { AddressComponents } from '@/domain/entity/address';
+import { AddressFactory } from '@/domain/factory/address.factory';
 import { AddressRepository } from '@/domain/repository/address.repository';
 import { GeocodingService } from '@/domain/service/geocoding.service';
 import { Coordinates } from '@/domain/value-object/coordinates.value-object';
+import { BaseUseCase } from './base.use-case';
 
-export class ConvertAddressToCoordinatesUseCase {
+export type Input = AddressComponents;
+export type Output = Coordinates | null;
+
+export class ConvertAddressToCoordinatesUseCase
+  implements BaseUseCase<Input, Output>
+{
   constructor(
+    private readonly addressFactory: AddressFactory,
     private readonly addressRepository: AddressRepository,
     private readonly geocodingService: GeocodingService,
   ) {}
 
-  async execute(address: AddressComponents): Promise<Coordinates | null> {
-    const existingAddress =
+  async execute(address: Input): Promise<Output> {
+    let existingAddress =
       await this.addressRepository.findByComponents(address);
 
     if (existingAddress?.coordinates) {
@@ -23,19 +31,14 @@ export class ConvertAddressToCoordinatesUseCase {
       return null;
     }
 
-    if (existingAddress) {
-      existingAddress.setCoordinates(coordinates);
-
-      await this.addressRepository.save(existingAddress);
-
-      return existingAddress.coordinates;
+    if (!existingAddress) {
+      existingAddress = this.addressFactory.create(address);
     }
 
-    const newAddress = await this.addressRepository.create({
-      ...address,
-      coordinates,
-    });
+    existingAddress.setCoordinates(coordinates);
 
-    return newAddress.coordinates;
+    await this.addressRepository.save(existingAddress);
+
+    return existingAddress.coordinates;
   }
 }
