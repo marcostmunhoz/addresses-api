@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   AddressRepositoryToken,
   EntityIdGeneratorServiceToken,
+  GeocodingServiceToken,
 } from './tokens';
 import { UuidV4EntityIdGeneratorService } from './infrastructure/service/uuid-v4-entity-id-generator.service';
 import { TypeOrmAddressRepository } from './infrastructure/repository/typeorm-address.repository';
@@ -18,6 +19,10 @@ import {
   DATABASE_CONFIG_PROPS,
   DatabaseConfigVariables,
 } from './infrastructure/config/database.config';
+import { FakeGeocodingService } from './infrastructure/service/fake-geocoding.service';
+import { ConvertAddressToCoordinatesController } from './interface/controller/convert-address-to-coordinates.controller';
+import { ConvertAddressToCoordinatesUseCase } from './application/use-case/convert-address-to-coordinates.use-case';
+import { AddressFactory } from './domain/factory/address.factory';
 
 const typeOrmEntities = [TypeOrmAddressModel];
 
@@ -58,8 +63,10 @@ const typeOrmEntities = [TypeOrmAddressModel];
     }),
     TypeOrmModule.forFeature(typeOrmEntities),
   ],
-  controllers: [],
+  controllers: [ConvertAddressToCoordinatesController],
   providers: [
+    ConvertAddressToCoordinatesUseCase,
+    AddressFactory,
     {
       provide: EntityIdGeneratorServiceToken,
       useClass: UuidV4EntityIdGeneratorService,
@@ -67,6 +74,17 @@ const typeOrmEntities = [TypeOrmAddressModel];
     {
       provide: AddressRepositoryToken,
       useClass: TypeOrmAddressRepository,
+    },
+    {
+      provide: GeocodingServiceToken,
+      inject: [APP_CONFIG_PROPS.KEY],
+      useFactory: (appConfig: AppConfigVariables) => {
+        if (appConfig.NODE_ENV === Environment.LOCAL) {
+          return new FakeGeocodingService();
+        }
+
+        throw new Error('Not implemented');
+      },
     },
   ],
 })
