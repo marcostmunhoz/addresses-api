@@ -4,7 +4,10 @@ import { ConvertAddressToCoordinatesRequest } from '../dto/convert-address-to-co
 import { ConvertAddressToCoordinatesResponse } from '../dto/convert-address-to-coordinates.response';
 import { ZipCode } from '@/domain/value-object/zip-code.value-object';
 import { State } from '@/domain/value-object/state.value-object';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { WrappedApiOkResponse } from '../decorator/wrapper-api-ok-response.decorator';
+import { DefaultApiErrorResponse } from '../decorator/default-api-error-response.decorator';
+import { DefaultApiValidationErrorResponse } from '../decorator/default-api-validation-error-response.decorator';
 
 @ApiTags('Addresses')
 @Controller('convert-address-to-coordinates')
@@ -16,7 +19,9 @@ export class ConvertAddressToCoordinatesController {
   @Version('1')
   @Get('/')
   @HttpCode(200)
-  @ApiOkResponse({ type: ConvertAddressToCoordinatesResponse })
+  @WrappedApiOkResponse(ConvertAddressToCoordinatesResponse)
+  @DefaultApiErrorResponse()
+  @DefaultApiValidationErrorResponse()
   async execute(
     @Query() request: ConvertAddressToCoordinatesRequest,
   ): Promise<ConvertAddressToCoordinatesResponse> {

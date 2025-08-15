@@ -14,6 +14,7 @@ module.exports = {
   },
   coveragePathIgnorePatterns: [
     'infrastructure/service/fake-geocoding.service.ts',
+    'interface/decorator',
     'testing/domain/index.ts',
     'main.ts',
     'tokens.ts',
