@@ -11,14 +11,32 @@ import {
   VersioningType,
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ResponseWrapperInterceptor } from './interface/interceptor/response-wrapper.interceptor';
+import { GlobalExceptionFilter } from './interface/exception/global-exception.filter';
+import { ValidationErrors, ValidationFailedException } from './domain/exception/validation-failed.exception';
 
 const configureApp = (app: INestApplication) => {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      exceptionFactory: (errors) => {
+        const fields: ValidationErrors = errors.map(
+          (error) => {
+            return {
+              field: error.property,
+              messages: error.constraints
+                ? Object.values(error.constraints)
+                : [],
+            };
+          },
+        );
+
+        return new ValidationFailedException(fields);
+      },
     }),
   );
-
+  app.useGlobalInterceptors(new ResponseWrapperInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.enableVersioning({
     type: VersioningType.URI,
   });
