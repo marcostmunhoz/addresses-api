@@ -12,6 +12,7 @@ import {
   createGeocodingServiceMock,
 } from '@/testing/domain';
 import { AddressFactory } from '@/domain/factory/address.factory';
+import { AddressNotFoundException } from '@/domain/exception/address-not-found.exception';
 
 describe('ConvertAddressToCoordinatesUseCase', () => {
   let sut: ConvertAddressToCoordinatesUseCase;
@@ -49,22 +50,16 @@ describe('ConvertAddressToCoordinatesUseCase', () => {
     expect(geocodingServiceMock.getCoordinates).not.toHaveBeenCalled();
   });
 
-  it('returns null if geocoding service returns null', async () => {
+  it('throws AddressNotFoundException if geocoding service returns null', async () => {
     // Arrange
     addressRepositoryMock.findByComponents.mockResolvedValue(null);
     geocodingServiceMock.getCoordinates.mockResolvedValue(null);
 
     // Act
-    const result = await sut.execute(fakeAddressComponents);
+    const assertion = async () => await sut.execute(fakeAddressComponents);
 
     // Assert
-    expect(result).toBeNull();
-    expect(addressRepositoryMock.findByComponents).toHaveBeenCalledWith(
-      fakeAddressComponents,
-    );
-    expect(geocodingServiceMock.getCoordinates).toHaveBeenCalledWith(
-      fakeAddressComponents,
-    );
+    expect(assertion).rejects.toThrow(AddressNotFoundException);
   });
 
   it('creates a new Address instance and saves it when it does not exist', async () => {

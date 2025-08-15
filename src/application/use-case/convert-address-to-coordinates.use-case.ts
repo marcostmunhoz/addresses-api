@@ -1,19 +1,24 @@
 import { AddressComponents } from '@/domain/entity/address';
 import { AddressFactory } from '@/domain/factory/address.factory';
-import { AddressRepository } from '@/domain/repository/address.repository';
-import { GeocodingService } from '@/domain/service/geocoding.service';
+import type { AddressRepository } from '@/domain/repository/address.repository';
+import type { GeocodingService } from '@/domain/service/geocoding.service';
 import { Coordinates } from '@/domain/value-object/coordinates.value-object';
 import { BaseUseCase } from './base.use-case';
+import { AddressNotFoundException } from '@/domain/exception/address-not-found.exception';
+import { AddressRepositoryToken, GeocodingServiceToken } from '@/tokens';
+import { Inject } from '@nestjs/common';
 
 export type Input = AddressComponents;
-export type Output = Coordinates | null;
+export type Output = Coordinates;
 
 export class ConvertAddressToCoordinatesUseCase
   implements BaseUseCase<Input, Output>
 {
   constructor(
     private readonly addressFactory: AddressFactory,
+    @Inject(AddressRepositoryToken)
     private readonly addressRepository: AddressRepository,
+    @Inject(GeocodingServiceToken)
     private readonly geocodingService: GeocodingService,
   ) {}
 
@@ -28,7 +33,7 @@ export class ConvertAddressToCoordinatesUseCase
     const coordinates = await this.geocodingService.getCoordinates(address);
 
     if (!coordinates) {
-      return null;
+      throw new AddressNotFoundException(address.zipCode.value);
     }
 
     if (!existingAddress) {
@@ -39,6 +44,6 @@ export class ConvertAddressToCoordinatesUseCase
 
     await this.addressRepository.save(existingAddress);
 
-    return existingAddress.coordinates;
+    return existingAddress.coordinates as Coordinates;
   }
 }

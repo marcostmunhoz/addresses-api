@@ -13,6 +13,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   coveragePathIgnorePatterns: [
+    'infrastructure/service/fake-geocoding.service.ts',
     'testing/domain/index.ts',
     'main.ts',
     'tokens.ts',
