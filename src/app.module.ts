@@ -6,7 +6,7 @@ import {
 } from './tokens';
 import { UuidV4EntityIdGeneratorService } from './infrastructure/service/uuid-v4-entity-id-generator.service';
 import { TypeOrmAddressRepository } from './infrastructure/repository/typeorm-address.repository';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import {
   APP_CONFIG_PROPS,
   AppConfigVariables,
@@ -23,6 +23,8 @@ import { FakeGeocodingService } from './infrastructure/service/fake-geocoding.se
 import { ConvertAddressToCoordinatesController } from './interface/controller/convert-address-to-coordinates.controller';
 import { ConvertAddressToCoordinatesUseCase } from './application/use-case/convert-address-to-coordinates.use-case';
 import { AddressFactory } from './domain/factory/address.factory';
+import { HttpModule, HttpService } from '@nestjs/axios';
+import { GoogleAPIGeocodingService } from './infrastructure/service/google-api-geocoding.service';
 
 const typeOrmEntities = [TypeOrmAddressModel];
 
@@ -33,12 +35,9 @@ const typeOrmEntities = [TypeOrmAddressModel];
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      inject: [APP_CONFIG_PROPS.KEY, DATABASE_CONFIG_PROPS.KEY],
-      useFactory: (
-        appConfig: AppConfigVariables,
-        dbConfig: DatabaseConfigVariables,
-      ): DataSourceOptions => {
-        if (appConfig.NODE_ENV === Environment.LOCAL) {
+      inject: [DATABASE_CONFIG_PROPS.KEY],
+      useFactory: (dbConfig: DatabaseConfigVariables): DataSourceOptions => {
+        if (dbConfig.DATABASE_DRIVER === 'sqlite') {
           return {
             type: 'sqlite',
             database: ':memory:',
@@ -62,6 +61,9 @@ const typeOrmEntities = [TypeOrmAddressModel];
       },
     }),
     TypeOrmModule.forFeature(typeOrmEntities),
+    HttpModule.register({
+      timeout: 15000,
+    }),
   ],
   controllers: [ConvertAddressToCoordinatesController],
   providers: [
@@ -77,13 +79,20 @@ const typeOrmEntities = [TypeOrmAddressModel];
     },
     {
       provide: GeocodingServiceToken,
-      inject: [APP_CONFIG_PROPS.KEY],
-      useFactory: (appConfig: AppConfigVariables) => {
+      inject: [APP_CONFIG_PROPS.KEY, HttpService],
+      useFactory: (appConfig: AppConfigVariables, httpService: HttpService) => {
         if (appConfig.NODE_ENV === Environment.LOCAL) {
           return new FakeGeocodingService();
         }
 
-        throw new Error('Not implemented');
+        if (!appConfig.GOOGLE_API_GEOCODING_KEY) {
+          throw new Error('Google API Geocoding key is not defined.');
+        }
+
+        return new GoogleAPIGeocodingService(
+          httpService,
+          appConfig.GOOGLE_API_GEOCODING_KEY,
+        );
       },
     },
   ],

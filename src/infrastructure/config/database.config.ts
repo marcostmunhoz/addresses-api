@@ -2,7 +2,12 @@ import { IsNumber, IsString, Max, Min } from 'class-validator';
 import { validate } from './config.validator';
 import { registerAs } from '@nestjs/config';
 
+export type DatabaseDriver = 'mysql' | 'sqlite';
+
 export class DatabaseConfigVariables {
+  @IsString()
+  DATABASE_DRIVER: DatabaseDriver;
+
   @IsString()
   DATABASE_HOST: string;
 
@@ -24,6 +29,7 @@ export class DatabaseConfigVariables {
 export const DATABASE_CONFIG_PROPS = registerAs('database', () => {
   return validate(
     {
+      DATABASE_DRIVER: process.env.DATABASE_DRIVER || 'sqlite',
       DATABASE_HOST: process.env.DATABASE_HOST || 'localhost',
       DATABASE_PORT: process.env.DATABASE_PORT || 3306,
       DATABASE_USERNAME: process.env.DATABASE_USERNAME || 'addresses',
