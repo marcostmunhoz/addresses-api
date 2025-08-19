@@ -30,7 +30,13 @@ export class ConvertAddressToCoordinatesUseCase
       return existingAddress.coordinates;
     }
 
-    const coordinates = await this.geocodingService.getCoordinates(address);
+    const coordinates = await this.geocodingService.getCoordinates({
+      ...address,
+      zipCode: address.zipCode.value,
+      state: address.state.value,
+      street: address.street ?? undefined,
+      number: address.number ?? undefined,
+    });
 
     if (!coordinates) {
       throw new AddressNotFoundException(address.zipCode.value);

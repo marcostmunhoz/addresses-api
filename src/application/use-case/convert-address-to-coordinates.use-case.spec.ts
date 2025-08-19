@@ -76,9 +76,14 @@ describe('ConvertAddressToCoordinatesUseCase', () => {
     expect(addressRepositoryMock.findByComponents).toHaveBeenCalledWith(
       fakeAddressComponents,
     );
-    expect(geocodingServiceMock.getCoordinates).toHaveBeenCalledWith(
-      fakeAddressComponents,
-    );
+    expect(geocodingServiceMock.getCoordinates).toHaveBeenCalledWith({
+      street: fakeAddressComponents.street,
+      number: fakeAddressComponents.number,
+      district: fakeAddressComponents.district,
+      city: fakeAddressComponents.city,
+      state: fakeAddressComponents.state.value,
+      zipCode: fakeAddressComponents.zipCode.value,
+    });
     expect(addressFactoryMock.create).toHaveBeenCalledWith(
       fakeAddressComponents,
     );
@@ -107,9 +112,14 @@ describe('ConvertAddressToCoordinatesUseCase', () => {
     expect(addressRepositoryMock.findByComponents).toHaveBeenCalledWith(
       fakeAddressComponents,
     );
-    expect(geocodingServiceMock.getCoordinates).toHaveBeenCalledWith(
-      fakeAddressComponents,
-    );
+    expect(geocodingServiceMock.getCoordinates).toHaveBeenCalledWith({
+      street: fakeAddressComponents.street,
+      number: fakeAddressComponents.number,
+      district: fakeAddressComponents.district,
+      city: fakeAddressComponents.city,
+      state: fakeAddressComponents.state.value,
+      zipCode: fakeAddressComponents.zipCode.value,
+    });
     expect(addressRepositoryMock.save).toHaveBeenCalledWith(updatedAddress);
   });
 });
