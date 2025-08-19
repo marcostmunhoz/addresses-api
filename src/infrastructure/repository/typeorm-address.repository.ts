@@ -2,7 +2,7 @@ import { Address, AddressComponents } from '@/domain/entity/address';
 import { AddressRepository } from '@/domain/repository/address.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmAddressModel } from '../model/typeorm-address.model';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { EntityId } from '@/domain/value-object/entity-id.value-object';
 import { ZipCode } from '@/domain/value-object/zip-code.value-object';
 import { State } from '@/domain/value-object/state.value-object';
@@ -23,8 +23,8 @@ export class TypeOrmAddressRepository implements AddressRepository {
         state: components.state.value,
         city: components.city,
         district: components.district,
-        street: components.street || undefined,
-        number: components.number || undefined,
+        street: components.street || IsNull(),
+        number: components.number || IsNull(),
       },
     });
 
