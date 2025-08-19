@@ -23,9 +23,9 @@ export class TypeOrmAddressModel {
   @Column({ nullable: true })
   number?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 8 })
   latitude?: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 8 })
   longitude?: number;
 }
