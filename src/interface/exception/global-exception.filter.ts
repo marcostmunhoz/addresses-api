@@ -8,6 +8,8 @@ import { ErrorCode } from '@/domain/enum/error-code.enum';
 @Injectable()
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
+    console.error('[GlobalExceptionFilter] Caught exception:', exception);
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const statusCode = mapExceptionToStatusCode(exception);

@@ -30,6 +30,7 @@ const makeHost = (response: any): ArgumentsHost =>
 describe('GlobalExceptionFilter', () => {
   let filter: GlobalExceptionFilter;
   let response: { status: jest.Mock; json: jest.Mock };
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     filter = new GlobalExceptionFilter();
@@ -37,7 +38,7 @@ describe('GlobalExceptionFilter', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     (mapExceptionToStatusCode as jest.Mock).mockReset();
   });
 
@@ -60,6 +61,10 @@ describe('GlobalExceptionFilter', () => {
         metadata: { field: 'zipCode' },
       },
     });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      '[GlobalExceptionFilter] Caught exception:',
+      ex,
+    );
   });
 
   it('should include metadata undefined when DomainException has no metadata', () => {
@@ -79,6 +84,10 @@ describe('GlobalExceptionFilter', () => {
         metadata: undefined,
       },
     });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      '[GlobalExceptionFilter] Caught exception:',
+      ex,
+    );
   });
 
   it('should fallback to UNHANDLED_ERROR for non DomainException', () => {
@@ -96,6 +105,10 @@ describe('GlobalExceptionFilter', () => {
         metadata: undefined,
       },
     });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      '[GlobalExceptionFilter] Caught exception:',
+      ex,
+    );
   });
 
   it('should handle null exception input', () => {
@@ -111,5 +124,9 @@ describe('GlobalExceptionFilter', () => {
         metadata: undefined,
       },
     });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      '[GlobalExceptionFilter] Caught exception:',
+      null,
+    );
   });
 });
