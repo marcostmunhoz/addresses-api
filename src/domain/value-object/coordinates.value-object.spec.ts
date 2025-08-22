@@ -14,6 +14,19 @@ describe('Coordinates', () => {
     expect(coords.value.longitude).toBe(longitude);
   });
 
+  it('should create valid coordinates from numeric string', () => {
+    // Arrange
+    const latitude = '45.0' as unknown as number;
+    const longitude = '90.0' as unknown as number;
+
+    // Act
+    const coords = new Coordinates({ latitude, longitude });
+
+    // Assert
+    expect(coords.value.latitude).toBe(45);
+    expect(coords.value.longitude).toBe(90);
+  });
+
   it('should throw for invalid latitude', () => {
     // Arrange
     const invalidLatitude = 100;
