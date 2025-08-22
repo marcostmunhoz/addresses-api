@@ -25,6 +25,7 @@ import { ConvertAddressToCoordinatesUseCase } from './application/use-case/conve
 import { AddressFactory } from './domain/factory/address.factory';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { GoogleAPIGeocodingService } from './infrastructure/service/google-api-geocoding.service';
+import * as path from 'path';
 
 const typeOrmEntities = [TypeOrmAddressModel];
 
@@ -55,6 +56,10 @@ const typeOrmEntities = [TypeOrmAddressModel];
           password: dbConfig.DATABASE_PASSWORD,
           database: dbConfig.DATABASE_NAME,
           entities: typeOrmEntities,
+          migrations: [
+            path.join(__dirname, 'infrastructure', 'migrations', '*.{ts,js}'),
+          ],
+          migrationsRun: true,
           synchronize: false,
           logging: false,
         };
