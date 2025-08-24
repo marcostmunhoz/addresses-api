@@ -26,14 +26,14 @@ export class ConvertAddressToCoordinatesRequest {
   city: string;
 
   @ApiProperty({
-    example: 'Praça da Sé',
+    example: 'Sé',
   })
   @IsNotEmpty()
   @IsString()
   district: string;
 
   @ApiProperty({
-    example: 'Sé',
+    example: 'Praça da Sé',
     type: String,
     required: false,
   })
