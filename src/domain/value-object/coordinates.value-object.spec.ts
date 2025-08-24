@@ -27,6 +27,19 @@ describe('Coordinates', () => {
     expect(coords.value.longitude).toBe(90);
   });
 
+  it('should round coordinates to six decimal places', () => {
+    // Arrange
+    const latitude = 1.23456789;
+    const longitude = 9.87654321;
+
+    // Act
+    const coords = new Coordinates({ latitude, longitude });
+
+    // Assert
+    expect(coords.value.latitude).toBe(1.234568);
+    expect(coords.value.longitude).toBe(9.876543);
+  });
+
   it('should throw for invalid latitude', () => {
     // Arrange
     const invalidLatitude = 100;
